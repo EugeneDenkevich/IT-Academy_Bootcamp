@@ -26,7 +26,7 @@ CI/CD пайплайн реализовать не успел.
 
 ## Pre installation
 
-### 2. Create and activate virtual local-environment. Installing packages
+### 1. Create and activate virtual local-environment. Installing packages
 
 ###  for Windows:
 
@@ -63,7 +63,7 @@ pip install -r requirements.txt
 
 <hr>
 
-### 1. Set global environment variables
+### 2. Set global environment variables
 ```bash
 cd src/
 ``` 
@@ -71,7 +71,7 @@ cd src/
 cp .env-example .env
 ```
 
-### Start applications
+### 3. Start applications
 ```bash
 python manage.py makemigrations
 ``` 
