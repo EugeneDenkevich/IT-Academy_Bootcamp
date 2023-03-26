@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Книга {{book.title}}{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+
+    <h4>Книга:</h4>
+    <div class="col-3">{{ book.title }}</div><br>
+
+    <h4>Авторы книги:</h4>
+    <div>
+        {% for author in authors %}
+        <div>
+            <div>{{ author.firstname }} {{ author.secondname }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <br>
+    <a href="{% url 'change_book' book.id %}" class="btn btn-success">Изменить</a>
+    <a href="{% url 'delete_book' book.id %}" class="btn btn-danger">Удалить</a>
+
+    <hr style="border-width: 3px">
+    <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>
+</div>
+{% endblock %}

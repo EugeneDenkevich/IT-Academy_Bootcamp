@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Добавить автора{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+    <form method="post">
+        {% csrf_token %}
+        <h4>Новый автор:</h4>
+        <div class="col-3">{{ form.firstname }}</div><br>
+        <div class="col-3">{{ form.secondname }}</div><br>
+        {% if books %}
+        <h4>Если он уже написал какие-либо книги, укажите их:</h4>
+        <div class="row row-cols-3">
+            {% for book in books %}
+            <div class="col">
+                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}">
+                <label for="book.id">{{ book.title }}</label><br>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <h4>Добавьте книги в базу данных. Для этого перейдите на главную страницу.</h4>
+        {% endif %}
+        <br><button type="submit" class="btn btn-primary">Готово</button>
+    </form>
+    <hr style="border-width: 3px">
+    <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>
+</div>
+{% endblock %}

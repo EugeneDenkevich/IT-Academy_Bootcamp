@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Изменить автора{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+
+    <form method="post">
+        {% csrf_token %}
+
+        <h4>Изменние данных об авторе:</h4>
+        <input type="text" name="firstname" class="col-3 form-control" value="{{ author.firstname }}"
+            style="width:25%"><br>
+        <input type="text" name="secondname" class="col-3 form-control" value="{{ author.secondname }}"
+            style="width:25%"><br>
+
+        <h4>Книги автора:</h4>
+        <div class="row row-cols-3">
+            {% for book in books %}
+            {% if book in authors_book %}
+            <div class="col">
+                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}" checked>
+                <label for="book.id">{{ book.title }}</label><br>
+            </div>
+            {% else %}
+            <div class="col">
+                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}">
+                <label for="book.id">{{ book.title }}</label><br>
+            </div>
+            {% endif %}
+            {% endfor %}
+        </div>
+        <br><button type="submit" class="btn btn-primary">Готово</button>
+    </form>
+
+    <hr style="border-width: 3px">
+    <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>
+</div>
+{% endblock %}

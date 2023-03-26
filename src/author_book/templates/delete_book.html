@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block title %}Удалить книгу{% endblock %}
+
+{% block content %}
+<div class="container-lg">
+
+    <form method="post">
+        {% csrf_token %}
+        <h4>Хотите удалить книгу "{{ book.title }}"?</h4>
+        <button type="submit" class="btn btn-danger">Да</button>
+    </form>
+
+    <hr style="border-width: 3px">
+    <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>
+</div>
+{% endblock %}
