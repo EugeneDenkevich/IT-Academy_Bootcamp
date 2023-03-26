@@ -26,12 +26,7 @@ CI/CD пайплайн реализовать не успел.
 
 ## Pre installation
 
-### 1. Set global environment variables
-
-```bash
-cp .env-example .env
-```
-### 2. Create and activate virtual local-environment
+### 2. Create and activate virtual local-environment. Installing packages
 
 ###  for Windows:
 
@@ -43,6 +38,9 @@ cd venv/Scripts
 ```
 ```bash
 .\activate
+```
+```bash
+cd ../../IT-Academy_Bootcamp
 ```
 ```bash
 pip install -r requirements.txt
@@ -57,15 +55,23 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 ```bash
+cd IT-Academy_Bootcamp
+```
+```bash
 pip install -r requirements.txt
 ```
 
 <hr>
 
-### Start applications
+### 1. Set global environment variables
 ```bash
 cd src/
 ``` 
+```bash
+cp .env-example .env
+```
+
+### Start applications
 ```bash
 python manage.py makemigrations
 ``` 
