@@ -9,6 +9,9 @@
         {% csrf_token %}
 
         <h4>Изменние данных об авторе:</h4>
+        {% if error %}
+        <div style="color: red; margin-bottom: 2px;">{{ error }}</div>
+        {% endif %}
         <input type="text" name="firstname" class="col-3 form-control" value="{{ author.firstname }}"
             style="width:25%"><br>
         <input type="text" name="secondname" class="col-3 form-control" value="{{ author.secondname }}"

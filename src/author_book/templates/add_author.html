@@ -7,8 +7,12 @@
     <form method="post">
         {% csrf_token %}
         <h4>Новый автор:</h4>
+        {% if error %}
+        <div style="color: red; margin-bottom: 2px;">{{ error }}</div>
+        {% endif %}
         <div class="col-3">{{ form.firstname }}</div><br>
         <div class="col-3">{{ form.secondname }}</div><br>
+        
         {% if books %}
         <h4>Если он уже написал какие-либо книги, укажите их:</h4>
         <div class="row row-cols-3">

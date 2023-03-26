@@ -17,5 +17,5 @@ urlpatterns = [
     path('author/<int:author_id>/change_author',
          views.change_author, name='change_author'),
     path('author/<int:pk>/delete_author',
-         views.AuthorDeleteView.as_view(), name='delete_author'),
+         views.del_author, name='delete_author'),
 ]

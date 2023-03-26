@@ -8,9 +8,12 @@
     <form method="post">
         {% csrf_token %}
         <h4>Новая книга:</h4>
+        {% if error_title %}
+        <div style="color: red; margin-bottom: 2px;">{{ error_title }}</div>
+        {% endif %}
         <div class="col-3">{{ form.title }}</div><br>
-        {% if error %}
-        <p style="color: red">{{error}}</p>
+        {% if error_authors %}
+        <p style="color: red">{{error_authors}}</p>
         {% endif %}
         <h4>Укажите автора книги. Можете указать несколько авторов:</h4>
         <div class="row row-cols-3">
