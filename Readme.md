@@ -80,6 +80,9 @@ python manage.py makemigrations
 python manage.py migrate
 ``` 
 ```bash
+python manage.py test
+``` 
+```bash
 python manage.py runserver
 ``` 
 ###  4. For using the app just type 127.0.0.1:8000 in yout browser.
