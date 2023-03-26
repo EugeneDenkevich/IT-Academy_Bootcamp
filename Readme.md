@@ -42,7 +42,7 @@ python -m venv venv
 cd venv/Scripts
 ```
 ```bash
-.\ activate
+.\activate
 ```
 ```bash
 pip install -r requirements.txt
