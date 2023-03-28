@@ -32,13 +32,6 @@ def check_fullname(full_request):
     return True
 
 
-def get_fullcontext():
-    authors = Author.objects.all().order_by('-id')
-    books = Book.objects.all().order_by('-id')
-
-    return {'authors': authors, 'books': books}
-
-
 def get_attributes(request_post):
     request_dict = dict(request_post)
     res = {k: request_dict[k] for k in request_dict if ("==>") in k}
@@ -81,9 +74,20 @@ def show_book(request, id_book):
     return render(request, 'book.html', context=context)
 
 
-def show_all(request):
-    context = get_fullcontext()
+def get_fullcontext():
+    authors = Author.objects.all().order_by('-id')
+    books = Book.objects.all().order_by('-id')
 
+    return {'authors': authors, 'books': books}
+
+
+def show_all(request):
+    books = Book.objects.all()
+    for book in books:
+        print(book.authors.all())
+        if list(book.authors.all()) == []:
+            book.delete()
+    context = get_fullcontext()
     return render(request, 'authors_books.html', context=context)
 
 
@@ -199,6 +203,7 @@ def change_author(request, author_id):
         if check_fullname(request.POST):
             form = AuthorForm(request.POST)
             request_dict = dict(request.POST)
+            print('--->>>', request_dict)
             books_dict = get_attributes(request.POST)
             if form.is_valid():
                 author = Author.objects.get(pk=author_id)
