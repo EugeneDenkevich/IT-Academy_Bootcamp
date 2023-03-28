@@ -5,12 +5,13 @@
  - изменение
  - удаление
 
-У Книг может быть 1 и более Авторов. Автор может иметь 0 и более книг. Книга не может существовать без Автором и удаляется вместе с её последним Автором.
+У Книг может быть 1 и более Авторов. Автор может иметь 0 и более книг. Книга не может существовать без Автора и удаляется вместе с её последним Автором.
 
 Создано 2 теста на проверку валидации формы Книги.
 
 Созданы переменные окружения.
 
+Некоторый функционал не сделан в полном объёме.
 CI/CD пайплайн реализовать не успел.
 
 Инструкция к запуску:
@@ -26,12 +27,7 @@ CI/CD пайплайн реализовать не успел.
 
 ## Pre installation
 
-### 1. Set global environment variables
-
-```bash
-cp .env-example .env
-```
-### 2. Create and activate virtual local-environment
+### 1. Create and activate virtual local-environment. Installing packages
 
 ###  for Windows:
 
@@ -42,7 +38,10 @@ python -m venv venv
 cd venv/Scripts
 ```
 ```bash
-.\ activate
+.\activate
+```
+```bash
+cd ../../IT-Academy_Bootcamp
 ```
 ```bash
 pip install -r requirements.txt
@@ -57,15 +56,23 @@ python3 -m venv venv
 source venv/bin/activate
 ```
 ```bash
+cd IT-Academy_Bootcamp
+```
+```bash
 pip install -r requirements.txt
 ```
 
 <hr>
 
-### Start applications
+### 2. Set global environment variables
 ```bash
 cd src/
 ``` 
+```bash
+cp .env-example .env
+```
+
+### 3. Start applications
 ```bash
 python manage.py makemigrations
 ``` 
@@ -73,5 +80,9 @@ python manage.py makemigrations
 python manage.py migrate
 ``` 
 ```bash
+python manage.py test
+``` 
+```bash
 python manage.py runserver
 ``` 
+###  4. For using the app just type 127.0.0.1:8000 in yout browser.
