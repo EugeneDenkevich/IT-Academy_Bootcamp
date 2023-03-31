@@ -60,51 +60,6 @@ class AddAuthorView(CreateView):
 
 # Old
 
-def check_book_title(full_request):
-    title = ''.join(dict(full_request)['title'])
-    forbit = '!@#$%^&*()_+-=<>/\,`~|.][{}'
-    for i in forbit:
-        for j in title:
-            if i == j:
-                return False
-
-    return True
-
-
-def check_fullname(full_request):
-    f_name = ''.join(dict(full_request)['firstname'])
-    s_name = ''.join(dict(full_request)['secondname'])
-    forbit = '1234567890!@#$%^&*()_+-=<>/\,`~|.][{}'
-    for i in forbit:
-        for j in f_name:
-            if i == j:
-                return False
-        for j in s_name:
-            if i == j:
-                return False
-
-    return True
-
-
-def get_attributes(request_post):
-    request_dict = dict(request_post)
-    res = {k: request_dict[k] for k in request_dict if ("==>") in k}
-
-    return res
-
-
-def get_add_process(copmlete_dict: dict,
-                    active_model: Model,
-                    passive_model: Model):
-    ids_dict = copmlete_dict.values()
-    objects = []
-    for id in ids_dict:
-        pk = int(''.join(id))
-        objects.append(active_model.objects.get(pk=pk))
-    instance = passive_model.objects.all().order_by('-id')[0]
-
-    return objects, instance
-
 
 def get_update_process(copmlete_dict: dict,
                        active_model: Model):
@@ -117,8 +72,8 @@ def get_update_process(copmlete_dict: dict,
     return objects
 
 
-def show_book(request, id_book):
-    book = Book.objects.get(pk=id_book)
+def show_book(request, book_id, book_slug):
+    book = get_object_or_404(Book, id=book_id, slug=book_slug)
     authors = book.authors.all()
     context = {
         'book': book,
@@ -144,8 +99,8 @@ def show_all(request):
     return render(request, 'authors_books.html', context=context)
 
 
-def show_author_and_his_books(request, id_author):
-    author = get_object_or_404(Author, pk=id_author)
+def show_author_and_his_books(request, author_id, author_slug):
+    author = get_object_or_404(Author, id=author_id, slug=author_slug)
     try:
         books = get_list_or_404(Book, authors=author)
     except:
@@ -270,3 +225,8 @@ def del_author(request, pk):
                 book.delete()
     Author.objects.get(pk=pk).delete()
     return redirect('index')
+
+
+def check_fullname(): pass
+def get_attributes(): pass
+def check_book_title(): pass

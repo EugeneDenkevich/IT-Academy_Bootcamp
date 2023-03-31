@@ -68,3 +68,5 @@ class AuthorForm(ModelForm):
                     raise ValidationError(
                         'В названии книги не должно быть спецсимволов!')
         return secondname
+
+
