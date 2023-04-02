@@ -2,7 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=django
 
 # My files
-Implement.txt
+impl.txt
 
 ### Django ###
 *.log
