@@ -1,32 +1,29 @@
 {% extends 'base.html' %}
 
-{% block title %}Добавить автора{% endblock %}
+{% block title %}Добавить книгу{% endblock %}
 
 {% block content %}
 <div class="container-lg">
-    <form method="post">
+    <h4>Новый автор:</h4>
+    <form action="{% url 'add_author' %}" method="post">
         {% csrf_token %}
-        <h4>Новый автор:</h4>
-        {% if error %}
-        <div style="color: red; margin-bottom: 2px;">{{ error }}</div>
-        {% endif %}
-        <div class="col-3">{{ form.firstname }}</div><br>
-        <div class="col-3">{{ form.secondname }}</div><br>
-        
-        {% if books %}
-        <h4>Если он уже написал какие-либо книги, укажите их:</h4>
-        <div class="row row-cols-3">
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {{ field.label }}:
+        <p class="col-3">{{ field }}</p>
+        {% endfor %}
+        <h4>Укажите книги, которые написал автор. Можете не указывать, если он ещё ничего не написал</h4>
+        <div class="row row-cols-3" style="margin-bottom: 15px;">
             {% for book in books %}
             <div class="col">
-                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}">
+                <input type="checkbox" id="{{ book.id }}" name="==>book_{{ book.id }}" value="{{ book.id }}">
                 <label for="book.id">{{ book.title }}</label><br>
             </div>
             {% endfor %}
         </div>
-        {% else %}
-        <h4>Добавьте книги в базу данных. Для этого перейдите на главную страницу.</h4>
-        {% endif %}
-        <br><button type="submit" class="btn btn-primary">Готово</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
     </form>
     <hr style="border-width: 3px">
     <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>

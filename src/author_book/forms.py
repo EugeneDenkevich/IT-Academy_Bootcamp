@@ -3,6 +3,7 @@ from .models import *
 from django.core.exceptions import ValidationError
 
 
+# Переделать в формсет и добавить в форму авторов?
 class BookForm(ModelForm):
     class Meta:
         model = Book
@@ -13,7 +14,8 @@ class BookForm(ModelForm):
         widgets = {
             'title': TextInput(attrs={
                 'class': 'form-control',
-                'placeholder': 'Название книги',
+                'placeholder': 'Серый волк и Красная шапочка',
+                'lable': 'Книга'
             }),
         }
 
@@ -24,8 +26,7 @@ class BookForm(ModelForm):
             for j in title:
                 if i == j:
                     raise ValidationError(
-                        'В названии не должно быть спецсимволов!')
-
+                        'В названии книги не должно быть спецсимволов!')
         return title
 
 
@@ -47,3 +48,25 @@ class AuthorForm(ModelForm):
                 'placeholder': 'Фамилия',
             }),
         }
+
+    def clean_firstname(self):
+        firstname = self.cleaned_data['firstname']
+        forbit = '1234567890!@#$%^&*()_+-=<>/\,`~|.][{}'
+        for i in forbit:
+            for j in firstname:
+                if i == j:
+                    raise ValidationError(
+                        'В названии книги не должно быть спецсимволов!')
+        return firstname
+
+    def clean_secondname(self):
+        secondname = self.cleaned_data['secondname']
+        forbit = '1234567890!@#$%^&*()_+-=<>/\,`~|.][{}'
+        for i in forbit:
+            for j in secondname:
+                if i == j:
+                    raise ValidationError(
+                        'В названии книги не должно быть спецсимволов!')
+        return secondname
+
+

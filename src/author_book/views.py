@@ -1,55 +1,64 @@
 from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
 from django.views.generic import DeleteView
 from django.db.models import Model
+from django.views.generic.edit import FormView, CreateView
+
 
 from .models import Author, Book
-from .forms import *
+from .forms import BookForm, AuthorForm
 
 
-def check_book_title(full_request):
-    title = ''.join(dict(full_request)['title'])
-    forbit = '!@#$%^&*()_+-=<>/\,`~|.][{}'
-    for i in forbit:
-        for j in title:
-            if i == j:
-                return False
+# New
+class AddBookView(CreateView):
+    form_class = BookForm
+    success_url = '/'
+    template_name = 'add_book.html'
 
-    return True
+    def get_context_data(self, **kwargs):
+        authors = Author.objects.all()
+        kwargs['authors'] = authors
+        return super().get_context_data(**kwargs)
 
-
-def check_fullname(full_request):
-    f_name = ''.join(dict(full_request)['firstname'])
-    s_name = ''.join(dict(full_request)['secondname'])
-    forbit = '1234567890!@#$%^&*()_+-=<>/\,`~|.][{}'
-    for i in forbit:
-        for j in f_name:
-            if i == j:
-                return False
-        for j in s_name:
-            if i == j:
-                return False
-
-    return True
-
-
-def get_attributes(request_post):
-    request_dict = dict(request_post)
-    res = {k: request_dict[k] for k in request_dict if ("==>") in k}
-
-    return res
+    def form_valid(self, form):
+        request_dict = self.request.POST
+        *authors_pks, = {k: request_dict[k] for k in request_dict if (
+            "==>author_") in k}.values()
+        if authors_pks == []:
+            form = BookForm()
+            authors = Author.objects.all()
+            context = {
+                'author_error': 'У книги должен быть хотя бы один автор',
+                'authors': authors,
+                'form': form,
+            }
+            return render(self.request, 'add_book.html', context)
+        book = form.save(commit=False)
+        book.save()
+        book.authors.add(*(Author.objects.get(pk=pk) for pk in authors_pks))
+        return super().form_valid(form)
 
 
-def get_add_process(copmlete_dict: dict,
-                    active_model: Model,
-                    passive_model: Model):
-    ids_dict = copmlete_dict.values()
-    objects = []
-    for id in ids_dict:
-        pk = int(''.join(id))
-        objects.append(active_model.objects.get(pk=pk))
-    instance = passive_model.objects.all().order_by('-id')[0]
+class AddAuthorView(CreateView):
+    form_class = AuthorForm
+    success_url = '/'
+    template_name = 'add_author.html'
 
-    return objects, instance
+    def get_context_data(self, **kwargs):
+        books = Book.objects.all()
+        kwargs['books'] = books
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        request_dict = self.request.POST
+        *books_pks, = {k: request_dict[k] for k in request_dict if (
+            "==>book_") in k}.values()
+        author = form.save(commit=False)
+        author.save()
+        author.book.add(*(Book.objects.get(pk=pk) for pk in books_pks))
+        return super().form_valid(form)
+
+
+# Old
 
 
 def get_update_process(copmlete_dict: dict,
@@ -63,8 +72,8 @@ def get_update_process(copmlete_dict: dict,
     return objects
 
 
-def show_book(request, id_book):
-    book = Book.objects.get(pk=id_book)
+def show_book(request, book_id, book_slug):
+    book = get_object_or_404(Book, id=book_id, slug=book_slug)
     authors = book.authors.all()
     context = {
         'book': book,
@@ -83,16 +92,15 @@ def get_fullcontext():
 
 def show_all(request):
     books = Book.objects.all()
-    for book in books:
-        print(book.authors.all())
-        if list(book.authors.all()) == []:
-            book.delete()
+    # for book in books:
+    #     if list(book.authors.all()) == []:
+    #         book.delete()
     context = get_fullcontext()
     return render(request, 'authors_books.html', context=context)
 
 
-def show_author_and_his_books(request, id_author):
-    author = get_object_or_404(Author, pk=id_author)
+def show_author_and_his_books(request, author_id, author_slug):
+    author = get_object_or_404(Author, id=author_id, slug=author_slug)
     try:
         books = get_list_or_404(Book, authors=author)
     except:
@@ -105,59 +113,29 @@ def show_author_and_his_books(request, id_author):
     return render(request, 'author.html', context=context)
 
 
-def add_book(request):
-    error_authors = None
-    error_title = None
-    if request.method == 'POST':
-        if check_book_title(request.POST):
-            authors_dict = get_attributes(request.POST)
-            if authors_dict:
-                form = BookForm(request.POST)
-                if form.is_valid():
-                    form.save()
-                    item, box = get_add_process(authors_dict, Author, Book)
-                    box.authors.add(*item)
-                    return redirect('index')
-            else:
-                error_authors = 'Нужно указать хотя бы одного автора'
-        else:
-            error_title = 'Название не должно содержать спецсимволы'
+# def add_author(request):
+#     error = None
+#     if request.method == 'POST':
+#         form = AuthorForm(request.POST)
+#         books_dict = get_attributes(request.POST)
+#         if check_fullname(request.POST):
+#             if form.is_valid():
+#                 form.save()
+#                 item, box = get_add_process(books_dict, Book, Author)
+#                 box.book.add(*item)
+#                 return redirect('index')
+#         else:
+#             error = 'Нельзя использовать спецсимволы и цифры в имени и фамилии'
 
-    context = get_fullcontext()
-    form = BookForm()
-    data = {
-        'form': form,
-        'authors': context['authors'],
-        'error_authors': error_authors,
-        'error_title': error_title
-    }
+#     context = get_fullcontext()
+#     form = AuthorForm()
+#     data = {
+#         'books': context['books'],
+#         'form': form,
+#         'error': error
+#     }
 
-    return render(request, 'add_book.html', context=data)
-
-
-def add_author(request):
-    error = None
-    if request.method == 'POST':
-        form = AuthorForm(request.POST)
-        books_dict = get_attributes(request.POST)
-        if check_fullname(request.POST):
-            if form.is_valid():
-                form.save()
-                item, box = get_add_process(books_dict, Book, Author)
-                box.book.add(*item)
-                return redirect('index')
-        else:
-            error = 'Нельзя использовать спецсимволы и цифры в имени и фамилии'
-
-    context = get_fullcontext()
-    form = AuthorForm()
-    data = {
-        'books': context['books'],
-        'form': form,
-        'error': error
-    }
-
-    return render(request, 'add_author.html', context=data)
+#     return render(request, 'add_author.html', context=data)
 
 
 def change_book(request, book_id):
@@ -247,3 +225,8 @@ def del_author(request, pk):
                 book.delete()
     Author.objects.get(pk=pk).delete()
     return redirect('index')
+
+
+def check_fullname(): pass
+def get_attributes(): pass
+def check_book_title(): pass

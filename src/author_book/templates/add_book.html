@@ -4,31 +4,30 @@
 
 {% block content %}
 <div class="container-lg">
-    {% if authors %}
-    <form method="post">
+    <h4>Новая книга:</h4>
+    <form action="{% url 'add_book' %}" method="post">
         {% csrf_token %}
-        <h4>Новая книга:</h4>
-        {% if error_title %}
-        <div style="color: red; margin-bottom: 2px;">{{ error_title }}</div>
-        {% endif %}
-        <div class="col-3">{{ form.title }}</div><br>
-        {% if error_authors %}
-        <p style="color: red">{{error_authors}}</p>
-        {% endif %}
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {{ field.label }}:
+        <p class="col-3">{{ field }}</p>
+        {% endfor %}
         <h4>Укажите автора книги. Можете указать несколько авторов:</h4>
-        <div class="row row-cols-3">
+        {% if author_error %}
+        <div class="alert alert-danger">{{ author_error }}</div>
+        {% endif %}
+        <div class="row row-cols-3" style="margin-bottom: 15px;">
             {% for author in authors %}
             <div class="col">
-                <input type="checkbox" id="{{ author.id }}" name="==>{{ author.id }}" value="{{ author.id }}">
-                <label for="author.id">{{ author.firstname }} {{ author.secondname }}</label><br>
+                <input type="checkbox" id="{{ author.id }}" name="==>author_{{ author.id }}" value="{{ author.id }}">
+                <label for="author.id">{{ author.firstname }} {{ author.secondname }}</label>
             </div>
             {% endfor %}
         </div>
-        <br><button type="submit" class="btn btn-primary">Готово</button>
+        <button type="submit" class="btn btn-primary">Добавить</button>
     </form>
-    {% else %}
-    <h4>Для того, чтобы добавить книгу создайте хотя бы одного автора. Вернитесь на главную страницу.</h4>
-    {% endif %}
     <hr style="border-width: 3px">
     <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>
 </div>

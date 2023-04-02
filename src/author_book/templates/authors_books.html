@@ -8,7 +8,7 @@
     <div class="row row-cols-5 gy-2">
         {% for book in books %}
         <a class="col btn btn-light" style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-            href="{% url 'show_book' book.id %}">{{ book.title }}</a>
+            href="{{ book.get_absolute_url }}" title="{{ book.title }}">{{ book.title }}</a>
         {% endfor %}
     </div><br>
     <a href="{% url 'add_book' %}" class="btn btn-primary">Добавить книгу</a>
@@ -18,8 +18,9 @@
     <h4>Авторы:</h4>
     <div class="row row-cols-5 gy-2">
         {% for author in authors %}
-        <a class="col btn btn-light" href="{% url 'show_author' author.id %}"
-            style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+        <a class="col btn btn-light" href="{{ author.get_absolute_url }}"
+            style="white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+            title="{{ author.firstname }} {{ author.secondname }}">
             {{ author.firstname }} {{ author.secondname }}
         </a>
         {% endfor %}
