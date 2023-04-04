@@ -5,11 +5,13 @@
 {% block content %}
 <div class="container-lg">
 
-    <!-- Old -->
     <h4>Книга:</h4>
     <div class="col-3">{{ book.title }}</div><br>
 
     <h4>Авторы книги:</h4>
+    {% if not book.has_authors %}
+    <p class="alert alert-danger">Укажите автора книги!</p>
+    {% else %}
     <div>
         {% for author in authors %}
         <div>
@@ -17,15 +19,10 @@
         </div>
         {% endfor %}
     </div>
+    {% endif %}
     <br>
     <a href="{% url 'change_book' book.id %}" class="btn btn-success">Изменить</a>
     <a href="{% url 'delete_book' book.id %}" class="btn btn-danger">Удалить</a>
-
-
-    <!-- New -->
-    
-
-
 
     <hr style="border-width: 3px">
     <a href="{% url 'index' %}" class="btn btn-outline-primary">На главную</a><br><br>

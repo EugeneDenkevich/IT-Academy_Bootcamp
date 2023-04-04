@@ -1,14 +1,51 @@
-from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect
-from django.views.generic import DeleteView
-from django.db.models import Model
-from django.views.generic.edit import FormView, CreateView
-
+from django.shortcuts import render, get_object_or_404, get_list_or_404, redirect, HttpResponseRedirect
+from django.views.generic import DeleteView, ListView, DetailView
+from django.views.generic.edit import CreateView, UpdateView
 
 from .models import Author, Book
 from .forms import BookForm, AuthorForm
 
 
-# New
+class IndexView(ListView):
+    model = Book
+    template_name = 'index.html'
+    context_object_name = 'books'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for book in self.get_queryset():
+            if not book.authors.exists():
+                book.has_authors = None
+                book.save()
+            else:
+                book.has_authors = 1
+                book.save()
+        context['authors'] = Author.objects.all().order_by('-id')
+        return context
+
+
+class BookDetailView(DetailView):
+    model = Book
+    template_name = 'book.html'
+    context_object_name = 'book'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['authors'] = self.get_object().authors.all()
+        return context
+
+
+class AuthorDetailView(DetailView):
+    model = Author
+    template_name = 'author.html'
+    context_object_name = 'author'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['books'] = self.get_object().book.all()
+        return context
+
+
 class AddBookView(CreateView):
     form_class = BookForm
     success_url = '/'
@@ -58,156 +95,57 @@ class AddAuthorView(CreateView):
         return super().form_valid(form)
 
 
-# Old
-
-
-def get_update_process(copmlete_dict: dict,
-                       active_model: Model):
-    ids = copmlete_dict.values()
-    objects = []
-    for id in ids:
-        pk = int(''.join(id))
-        objects.append(active_model.objects.get(pk=pk))
-
-    return objects
-
-
-def show_book(request, book_id, book_slug):
-    book = get_object_or_404(Book, id=book_id, slug=book_slug)
-    authors = book.authors.all()
-    context = {
-        'book': book,
-        'authors': authors
-    }
-
-    return render(request, 'book.html', context=context)
-
-
-def get_fullcontext():
-    authors = Author.objects.all().order_by('-id')
-    books = Book.objects.all().order_by('-id')
-
-    return {'authors': authors, 'books': books}
-
-
-def show_all(request):
-    books = Book.objects.all()
-    # for book in books:
-    #     if list(book.authors.all()) == []:
-    #         book.delete()
-    context = get_fullcontext()
-    return render(request, 'authors_books.html', context=context)
-
-
-def show_author_and_his_books(request, author_id, author_slug):
-    author = get_object_or_404(Author, id=author_id, slug=author_slug)
-    try:
-        books = get_list_or_404(Book, authors=author)
-    except:
-        books = None
-    context = {
-        'author': author,
-        'books': books
-    }
-
-    return render(request, 'author.html', context=context)
-
-
-# def add_author(request):
-#     error = None
-#     if request.method == 'POST':
-#         form = AuthorForm(request.POST)
-#         books_dict = get_attributes(request.POST)
-#         if check_fullname(request.POST):
-#             if form.is_valid():
-#                 form.save()
-#                 item, box = get_add_process(books_dict, Book, Author)
-#                 box.book.add(*item)
-#                 return redirect('index')
-#         else:
-#             error = 'Нельзя использовать спецсимволы и цифры в имени и фамилии'
-
-#     context = get_fullcontext()
-#     form = AuthorForm()
-#     data = {
-#         'books': context['books'],
-#         'form': form,
-#         'error': error
-#     }
-
-#     return render(request, 'add_author.html', context=data)
-
-
-def change_book(request, book_id):
+class BookUpdateView(UpdateView):
+    model = Book
+    form_class = BookForm
+    template_name = 'change_book.html'
     error_authors = None
-    error_title = None
-    if request.method == 'POST':
-        form = BookForm(request.POST)
-        authors_dict = get_attributes(request.POST)
-        if check_book_title(request.POST):
-            if authors_dict:
-                if form.is_valid():
-                    book = Book.objects.get(pk=book_id)
-                    book.title = ''.join(dict(request.POST)['title'])
-                    book.save()
-                    authors = get_update_process(authors_dict, Author)
-                    book.authors.clear()
-                    book.authors.add(*authors)
-                    return redirect('index')
-            else:
-                error_authors = 'Нужно указать хотя бы одного автора'
-        else:
-            error_title = 'Название не должно содержать спецсимволы'
 
-    book = Book.objects.get(pk=book_id)
-    form = BookForm()
-    authors = Author.objects.all()
-    book_authors = book.authors.all()
-    context = {
-        'form': form,
-        'book': book,
-        'authors': authors,
-        'book_authors': book_authors,
-        'error_authors': error_authors,
-        'error_title': error_title
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        book_authors = self.get_object().authors.all()
+        context['authors'] = Author.objects.all()
+        context['book_authors'] = book_authors
+        context['error_authors'] = self.error_authors
+        return context
 
-    return render(request, 'change_book.html', context=context)
+    def form_valid(self, form):
+        request_dict = self.request.POST
+        *authors_pks, = {k: request_dict[k] for k in request_dict if (
+            "==>author_") in k}.values()
+        if authors_pks == []:
+            self.error_authors = 'У книги должен быть хотя бы один автор'
+            return super(BookUpdateView, self).form_invalid(form)
+        book = form.save(commit=False)
+        book.save()
+        book.authors.clear()
+        book.authors.add(*(Author.objects.get(pk=pk) for pk in authors_pks))
+        book.has_authors = 1
+        book.save()
+        return super().form_valid(form)
 
 
-def change_author(request, author_id):
-    error = None
-    if request.method == 'POST':
-        if check_fullname(request.POST):
-            form = AuthorForm(request.POST)
-            request_dict = dict(request.POST)
-            print('--->>>', request_dict)
-            books_dict = get_attributes(request.POST)
-            if form.is_valid():
-                author = Author.objects.get(pk=author_id)
-                author.firstname = ''.join(request_dict['firstname'])
-                author.secondname = ''.join(request_dict['secondname'])
-                author.save()
-                books = get_update_process(books_dict, Book)
-                author.book.clear()
-                author.book.add(*books)
-                return redirect('index')
-        else:
-            error = 'Нельзя использовать спецсимволы и цифры в имени и фамилии'
+class AuthorUpdateView(UpdateView):
+    model = Author
+    form_class = AuthorForm
+    template_name = 'change_author.html'
 
-    author = Author.objects.get(pk=author_id)
-    form = AuthorForm()
-    books = Book.objects.all()
-    authors_book = author.book.all()
-    context = {
-        'form': form,
-        'author': author,
-        'books': books,
-        'authors_book': authors_book,
-        'error': error
-    }
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        author_book = self.get_object().book.all()
+        context['books'] = Book.objects.all()
+        context['authors_book'] = author_book
+        return context
 
-    return render(request, 'change_author.html', context=context)
+    def form_valid(self, form):
+        request_dict = self.request.POST
+        *books_pks, = {k: request_dict[k] for k in request_dict if (
+            "==>book_") in k}.values()
+        author = form.save(commit=False)
+        author.save()
+        author.book.clear()
+        author.book.add(*(Book.objects.get(pk=pk) for pk in books_pks))
+        return super().form_valid(form)
 
 
 class BookDeleteView(DeleteView):
@@ -216,17 +154,7 @@ class BookDeleteView(DeleteView):
     template_name = 'delete_book.html'
 
 
-def del_author(request, pk):
-    author = Author.objects.get(pk=pk)
-    books = author.book.all()
-    for book in books:
-        if author in book.authors.all():
-            if list(book.authors.exclude(id=author.id)) == []:
-                book.delete()
-    Author.objects.get(pk=pk).delete()
-    return redirect('index')
-
-
-def check_fullname(): pass
-def get_attributes(): pass
-def check_book_title(): pass
+class AuthorDeleteView(DeleteView):
+    model = Author
+    success_url = '/'
+    template_name = 'delete_author.html'

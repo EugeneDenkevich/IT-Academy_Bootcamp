@@ -56,7 +56,7 @@ class AuthorForm(ModelForm):
             for j in firstname:
                 if i == j:
                     raise ValidationError(
-                        'В названии книги не должно быть спецсимволов!')
+                        'В имени не должно быть спецсимволов!')
         return firstname
 
     def clean_secondname(self):
@@ -66,7 +66,7 @@ class AuthorForm(ModelForm):
             for j in secondname:
                 if i == j:
                     raise ValidationError(
-                        'В названии книги не должно быть спецсимволов!')
+                        'В фамилии не должно быть спецсимволов!')
         return secondname
 
 

@@ -9,29 +9,35 @@
         {% csrf_token %}
 
         <h4>Измените название:</h4>
-        {% if error_title %}
-        <div style="color: red; margin-bottom: 2px;">{{ error_title }}</div>
-        {% endif %}
-        <input type="text" name="title" class="col-3 form-control" value="{{ book.title }}" style="width:25%"><br>
+        {% for field in form %}
+        {% for error in field.errors %}
+        <div class="alert alert-danger">{{error}}</div>
+        {% endfor %}
+        {{ field.label }}:
+        <p class="col-3">{{ field }}</p>
+        {% endfor %}
+
         {% if error_authors %}
-        <p style="color: red">{{ error_authors }}</p>
+        <p class="alert alert-danger">{{ error_authors }}</p>
         {% endif %}
         <h4>Авторы книги:</h4>
         <div class="row row-cols-3">
             {% for author in authors %}
             {% if author in book_authors %}
             <div class="col">
-                <input type="checkbox" id="{{ author.id }}" name="==>{{ author.id }}" value="{{ author.id }}" checked>
+                <input type="checkbox" id="{{ author.id }}" name="==>author_{{ author.id }}" value="{{ author.id }}"
+                    checked>
                 <label for="author.id">{{ author.firstname }} {{ author.secondname }}</label><br>
             </div>
             {% else %}
             <div class="col">
-                <input type="checkbox" id="{{ author.id }}" name="==>{{ author.id }}" value="{{ author.id }}">
+                <input type="checkbox" id="{{ author.id }}" name="==>author_{{ author.id }}" value="{{ author.id }}">
                 <label for="author.id">{{ author.firstname }} {{ author.secondname }}</label><br>
             </div>
             {% endif %}
             {% endfor %}
         </div>
+
         <br><button type="submit" class="btn btn-primary">Готово</button>
     </form>
 
