@@ -16,7 +16,7 @@ class Author(models.Model):
         return f'{self.firstname} {self.secondname}'
     
     def get_absolute_url(self):
-        return reverse('show_author', kwargs={'author_slug': self.slug, 'author_id': self.pk})
+        return reverse('show_author', kwargs={'pk': self.pk})
     
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -27,13 +27,14 @@ class Author(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=200, verbose_name='Название книги')
     created_at = models.DateTimeField(auto_now_add=True)
+    has_authors = models.CharField(max_length=1, null=True)
     slug = models.SlugField(db_index=True, max_length=255, null=False)
 
     def __str__(self) -> str:
         return f'{self.title}'
     
     def get_absolute_url(self):
-        return reverse('show_book', kwargs={'book_slug': self.slug, 'book_id': self.pk})
+        return reverse('show_book', kwargs={'pk': self.pk})
 
     def save(self, *args, **kwargs):
         if not self.slug:

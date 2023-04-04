@@ -22,12 +22,12 @@
             {% for book in books %}
             {% if book in authors_book %}
             <div class="col">
-                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}" checked>
+                <input type="checkbox" id="{{ book.id }}" name="==>book_{{ book.id }}" value="{{ book.id }}" checked>
                 <label for="book.id">{{ book.title }}</label><br>
             </div>
             {% else %}
             <div class="col">
-                <input type="checkbox" id="{{ book.id }}" name="==>{{ book.id }}" value="{{ book.id }}">
+                <input type="checkbox" id="{{ book.id }}" name="==>book_{{ book.id }}" value="{{ book.id }}">
                 <label for="book.id">{{ book.title }}</label><br>
             </div>
             {% endif %}

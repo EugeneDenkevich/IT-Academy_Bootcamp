@@ -5,6 +5,9 @@
 {% block content %}
 <div class="container-lg">
     <h4>Новый автор:</h4>
+
+    {{ form.books }}
+
     <form action="{% url 'add_author' %}" method="post">
         {% csrf_token %}
         {% for field in form %}
